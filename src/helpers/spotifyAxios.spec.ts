@@ -52,10 +52,41 @@ describe('spotifyAxios', () => {
     });
   });
 
-  it('should handle errors', async () => {
-    const testError = { message: 'foo' };
-    axiosMock.mockRejectedValue(testError);
-    await expect(spotifyAxios('bar', 'GET', 'token')).rejects.toThrow('foo');
+  describe('should handle errors', () => {
+    it('should handle a generic error', async () => {
+      const testError = { message: 'foo' };
+      axiosMock.mockRejectedValue(testError);
+      await expect(spotifyAxios('bar', 'GET', 'token')).rejects.toEqual({
+        message: 'foo',
+      });
+    });
+
+    it(`should handle a 429 (rate limit) error`, async () => {
+      const testError = {
+        message: 'Error: Rate limit exceeded',
+        code: '429',
+        response: {
+          status: 429,
+          statusText: 'Rate limit exceeded',
+          headers: {
+            'retry-after': 6,
+          },
+        },
+      };
+      axiosMock.mockRejectedValue(testError);
+
+      await expect(spotifyAxios('bar', 'GET', 'token')).rejects.toEqual({
+        message: 'Error: Rate limit exceeded',
+        code: '429',
+        response: {
+          status: 429,
+          statusText: 'Rate limit exceeded',
+          headers: {
+            'retry-after': 6,
+          },
+        },
+      });
+    });
   });
 });
 

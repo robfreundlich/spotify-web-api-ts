@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
+import axios, { AxiosRequestConfig, Method } from 'axios';
 import qs from 'qs';
 import { BASE_API_URL } from '../constants';
 
@@ -26,8 +26,11 @@ export async function spotifyAxios<T>(
 
     return response.data as T;
   } catch (error) {
-    const err = error as AxiosError;
-    throw new Error(err.message);
+    // const err = error as AxiosError;
+    // throw new Error(err.message);
+
+    // Just rethrow it so the caller can see error code, response headers, etc
+    throw error;
   }
 }
 
